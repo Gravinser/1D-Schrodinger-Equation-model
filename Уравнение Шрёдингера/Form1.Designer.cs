@@ -61,7 +61,7 @@
             Controls.Add(Plot);
             Name = "Form1";
             ShowIcon = false;
-            Text = "Уравнение Шрёдингера";
+            Text = "Schrodinger equation";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)Plot).EndInit();
             ResumeLayout(false);
