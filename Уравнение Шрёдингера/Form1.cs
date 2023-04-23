@@ -34,23 +34,26 @@ namespace Уравнение_Шрёдингера
             for (int ni = 0; ni < n; ni++)
             {
                 float[][] f1 = new float[l][];
-                for (int i = 1; i < l - 1; i++)
+                for (int i = 0; i < l; i++)
                 {
                     f1[i] = new float[2];
-                    f1[i][0] = f[i][0] + (-(f[i - 1][1] + f[i + 1][1] - 2 * f[i][1]) / (dx * dx) * h / (2 * m) + U[i] * f[i][1] / h) * dt;
-                    f1[i][1] = f[i][1] - (-(f[i - 1][0] + f[i + 1][0] - 2 * f[i][0]) / (dx * dx) * h / (2 * m) + U[i] * f[i][0] / h) * dt;
                 }
                 for (int i = 1; i < l - 1; i++)
                 {
-                    f[i][0] = f1[i][0];
-                    f[i][1] = f1[i][1];
+                    f1[i][0] = f[i][0] + (-(f[i - 1][1] + f[i + 1][1] - 2 * f[i][1]) / (dx * dx) * h / (2 * m) + U[i] * f[i][1] / h) * dt;
+                    f1[i][1] = f[i][1] - (-(f[i - 1][0] + f[i + 1][0] - 2 * f[i][0]) / (dx * dx) * h / (2 * m) + U[i] * f[i][0] / h) * dt;
+                }
+                for (var i = 1; i < l - 1; i++)
+                {
+                    f[i][0] = (f1[i][0] + (-(f1[i - 1][1] + f1[i + 1][1] - 2 * f1[i][1]) / (dx * dx) * h / (2 * m) + U[i] * f1[i][1] / h) * dt + f[i][0]) / 2;
+                    f[i][1] = (f1[i][1] - (-(f1[i - 1][0] + f1[i + 1][0] - 2 * f1[i][0]) / (dx * dx) * h / (2 * m) + U[i] * f1[i][0] / h) * dt + f[i][1]) / 2;
                 }
             }
             norm();
             projection();
             Plot.Invalidate();
         }
-
+        
         private void norm()
         {
             float sum = 0;
