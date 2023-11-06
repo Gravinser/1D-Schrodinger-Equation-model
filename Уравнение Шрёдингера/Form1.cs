@@ -2,30 +2,28 @@ namespace Уравнение_Шрёдингера
 {
     public partial class Form1 : Form
     {
-        static int n = 1000;
-        static float dt = 0.001F;
-        static float dx = 1;
-        static int l = 300;
+        const int n = 1000;
+        const double dt = 0.001;
+        const double dx = 1;
+        const int l = 300;
+        const double h = 1;
+        const double m = 1;
 
-        static float h = 1;
-        static float m = 1;
+        double[][] f = new double[l][];
+        double[][] f1 = new double[l][];
+        double[] U = new double[l];
 
-        float[][] f = new float[l][];
-        float[] U = new float[l];
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
             for (int i = 0; i < l; i++)
             {
-                f[i] = new float[2];
+                f[i] = new double[2];
+                f1[i] = new double[2];
                 //f[i][0] = (float)Math.Sin(((double)i) / l * Math.PI * 5);
-                f[i][0] = (float)Math.Exp(-Math.Pow(i - l / 2 + 100, 2) / 300);
+                f[i][0] = Math.Exp(-Math.Pow(i - l / 2 + 100, 2) / 300 / Math.Sqrt(2));
                 f[i][1] = 0;
-                U[i] = (float)Math.Pow((i - l / 2), 2) / 100000;
+                U[i] = Math.Pow((i - l / 2), 2) / 100000;
             }
         }
 
@@ -33,69 +31,69 @@ namespace Уравнение_Шрёдингера
         {
             for (int ni = 0; ni < n; ni++)
             {
-                float[][] f1 = new float[l][];
-                for (int i = 0; i < l; i++)
-                {
-                    f1[i] = new float[2];
-                }
-                for (int i = 1; i < l - 1; i++)
-                {
-                    f1[i][0] = f[i][0] + (-(f[i - 1][1] + f[i + 1][1] - 2 * f[i][1]) / (dx * dx) * h / (2 * m) + U[i] * f[i][1] / h) * dt;
-                    f1[i][1] = f[i][1] - (-(f[i - 1][0] + f[i + 1][0] - 2 * f[i][0]) / (dx * dx) * h / (2 * m) + U[i] * f[i][0] / h) * dt;
-                }
-                for (var i = 1; i < l - 1; i++)
-                {
-                    f[i][0] = (f1[i][0] + (-(f1[i - 1][1] + f1[i + 1][1] - 2 * f1[i][1]) / (dx * dx) * h / (2 * m) + U[i] * f1[i][1] / h) * dt + f[i][0]) / 2;
-                    f[i][1] = (f1[i][1] - (-(f1[i - 1][0] + f1[i + 1][0] - 2 * f1[i][0]) / (dx * dx) * h / (2 * m) + U[i] * f1[i][0] / h) * dt + f[i][1]) / 2;
-                }
+                for (int i = 0; i < l; i++) for (int r = 0; r < 2; r++)
+                        f1[i][r] = f[i][r] + dtf(f, i, r) * dt;
+                for (int i = 0; i < l; i++) for (int r = 0; r < 2; r++)
+                        f[i][r] = (f1[i][r] + dtf(f1, i, r) * dt + f[i][r]) / 2;
             }
             norm();
             projection();
             Plot.Invalidate();
         }
-        
+        private double dtf(double[][] f, int i, int r)
+        {
+            int ri = 1 - r, k = 2 * ri - 1;
+            return -k * (-dx2f(f, i, ri) * h * h / (2 * m) + U[i] * f[i][ri]) / h;
+        }
+        private double dx2f(double[][] f, int i, int r)
+        {
+            return (f[mod(i+1,l)][r] + f[mod(i-1,l)][r] - 2 * f[i][r])/(dx*dx);
+        }
+        private int mod(int a, int b)
+        {
+            if (a >= 0) return a % b;
+            else return b + (a + 1) % b - 1;
+        }
         private void norm()
         {
-            float sum = 0;
+            double sum = 0;
             for (int i = 0; i < l; i++)
                 sum += (f[i][0] * f[i][0] + f[i][1] * f[i][1]) / l;
             for (int i = 0; i < l; i++)
             {
-                f[i][0] *= (float)(1 / Math.Sqrt(sum));
-                f[i][1] *= (float)(1 / Math.Sqrt(sum));
+                f[i][0] /= Math.Sqrt(sum);
+                f[i][1] /= Math.Sqrt(sum);
             }
         }
-
         private void projection()
         {
             for (int k = 0; k < 100; k++)
             {
-                float[] sum = { 0, 0 };
+                double[] sum = { 0, 0 };
                 for (int i = 0; i < l; i++)
                 {
-                    sum[0] += f[i][0] * (float)(Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k) / l);
-                    sum[1] += f[i][1] * (float)(Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k) / l);
+                    sum[0] += f[i][0] * (Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k) / l);
+                    sum[1] += f[i][1] * (Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k) / l);
                 }
                 for (int i = 0; i < l; i++)
                 {
-                    f[i][0] -= sum[0] * (float)(Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k));
-                    f[i][1] -= sum[1] * (float)(Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k));
+                    f[i][0] -= sum[0] * (Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k));
+                    f[i][1] -= sum[1] * (Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k));
                 }
                 sum[0] = 0;
                 sum[1] = 0;
                 for (int i = 0; i < l; i++)
                 {
-                    sum[0] += f[i][0] * (float)(Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k) / l);
-                    sum[1] += f[i][1] * (float)(Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k) / l);
+                    sum[0] += f[i][0] * (Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k) / l);
+                    sum[1] += f[i][1] * (Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k) / l);
                 }
                 for (int i = 0; i < l; i++)
                 {
-                    f[i][0] -= sum[0] * (float)(Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k));
-                    f[i][1] -= sum[1] * (float)(Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k));
+                    f[i][0] -= sum[0] * (Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k));
+                    f[i][1] -= sum[1] * (Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k));
                 }
             }
         }
-
         private void Plot_Paint(object sender, PaintEventArgs e)
         {
             int sx = Plot.Size.Width;
@@ -108,10 +106,11 @@ namespace Уравнение_Шрёдингера
             {
                 fr[i] = new Point((int)(((float)i) / (l - 1) * sx), (int)(-f[i][0] * 20 + sy / 2));
                 fi[i] = new Point((int)(((float)i) / (l - 1) * sx), (int)(-f[i][1] * 20 + sy / 2));
-                fm[i] = new Point((int)(((float)i) / (l - 1) * sx), (int)(-(f[i][0] * f[i][0] + f[i][1] * f[i][1]) * 20 + sy / 2));
+                fm[i] = new Point((int)(((float)i) / (l - 1) * sx), (int)(-(f[i][0] * f[i][0] + f[i][1] * f[i][1]) * 10 + sy / 2));
                 u[i] = new Point((int)(((float)i) / (l - 1) * sx), (int)(-U[i] * 1000 + sy / 2));
             }
             e.Graphics.Clear(Color.White);
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             e.Graphics.DrawLines(new Pen(Color.Black, 2), u);
             e.Graphics.DrawLines(new Pen(Color.Red, 2), fr);
             e.Graphics.DrawLines(new Pen(Color.Blue, 2), fi);

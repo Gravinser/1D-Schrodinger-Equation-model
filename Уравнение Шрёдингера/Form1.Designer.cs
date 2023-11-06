@@ -59,10 +59,10 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(782, 553);
             Controls.Add(Plot);
+            DoubleBuffered = true;
             Name = "Form1";
             ShowIcon = false;
             Text = "Schrodinger equation";
-            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)Plot).EndInit();
             ResumeLayout(false);
         }
