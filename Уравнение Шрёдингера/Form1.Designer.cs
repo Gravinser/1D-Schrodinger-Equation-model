@@ -63,6 +63,7 @@
             Name = "Form1";
             ShowIcon = false;
             Text = "Schrodinger equation";
+            KeyDown += Form1_KeyDown;
             ((System.ComponentModel.ISupportInitialize)Plot).EndInit();
             ResumeLayout(false);
         }

@@ -47,7 +47,7 @@ namespace Уравнение_Шрёдингера
         }
         private double dx2f(double[][] f, int i, int r)
         {
-            return (f[mod(i+1,l)][r] + f[mod(i-1,l)][r] - 2 * f[i][r])/(dx*dx);
+            return (f[mod(i + 1, l)][r] + f[mod(i - 1, l)][r] - 2 * f[i][r]) / (dx * dx);
         }
         private int mod(int a, int b)
         {
@@ -115,6 +115,16 @@ namespace Уравнение_Шрёдингера
             e.Graphics.DrawLines(new Pen(Color.Red, 2), fr);
             e.Graphics.DrawLines(new Pen(Color.Blue, 2), fi);
             e.Graphics.DrawLines(new Pen(Color.Green, 2), fm);
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Space)
+                for (int i = 0; i < l; i++)
+                {
+                    f[i][0] = Math.Exp(-Math.Pow(i - l / 2 + 100, 2) / 300 / Math.Sqrt(2));
+                    f[i][1] = 0;
+                }
         }
     }
 }
