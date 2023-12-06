@@ -31,13 +31,16 @@ namespace Уравнение_Шрёдингера
         {
             for (int ni = 0; ni < n; ni++)
             {
-                for (int i = 0; i < l; i++) for (int r = 0; r < 2; r++)
-                        f1[i][r] = f[i][r] + dtf(f, i, r) * dt;
-                for (int i = 0; i < l; i++) for (int r = 0; r < 2; r++)
-                        f[i][r] = (f1[i][r] + dtf(f1, i, r) * dt + f[i][r]) / 2;
+                for (var i = 0; i < l; i++)
+                    f1[i][0] = f[i][0] + dtf(f, i, 0) * dt;
+                for (var i = 0; i < l; i++)
+                    f[i][0] = f1[i][0];
+                for (var i = 0; i < l; i++)
+                    f1[i][1] = f[i][1] + dtf(f, i, 1) * dt;
+                for (var i = 0; i < l; i++)
+                    f[i][1] = f1[i][1];
             }
             norm();
-            projection();
             Plot.Invalidate();
         }
         private double dtf(double[][] f, int i, int r)
@@ -65,35 +68,6 @@ namespace Уравнение_Шрёдингера
                 f[i][1] /= Math.Sqrt(sum);
             }
         }
-        private void projection()
-        {
-            for (int k = 0; k < 100; k++)
-            {
-                double[] sum = { 0, 0 };
-                for (int i = 0; i < l; i++)
-                {
-                    sum[0] += f[i][0] * (Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k) / l);
-                    sum[1] += f[i][1] * (Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k) / l);
-                }
-                for (int i = 0; i < l; i++)
-                {
-                    f[i][0] -= sum[0] * (Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k));
-                    f[i][1] -= sum[1] * (Math.Pow(-1, i) * Math.Cos(i / l * Math.PI * 2 * k));
-                }
-                sum[0] = 0;
-                sum[1] = 0;
-                for (int i = 0; i < l; i++)
-                {
-                    sum[0] += f[i][0] * (Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k) / l);
-                    sum[1] += f[i][1] * (Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k) / l);
-                }
-                for (int i = 0; i < l; i++)
-                {
-                    f[i][0] -= sum[0] * (Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k));
-                    f[i][1] -= sum[1] * (Math.Pow(-1, i) * Math.Sin(i / l * Math.PI * 2 * k));
-                }
-            }
-        }
         private void Plot_Paint(object sender, PaintEventArgs e)
         {
             int sx = Plot.Size.Width;
@@ -116,7 +90,6 @@ namespace Уравнение_Шрёдингера
             e.Graphics.DrawLines(new Pen(Color.Blue, 2), fi);
             e.Graphics.DrawLines(new Pen(Color.Green, 2), fm);
         }
-
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if(e.KeyCode == Keys.Space)
